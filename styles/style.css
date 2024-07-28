@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+//rodar "npm run dev" antes de iniciar 
+
+body {
+    background-color: #F6F7F8;
+}
