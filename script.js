@@ -14,12 +14,12 @@ let cart = [];
 // Abrir o modal do carrinho
 cartBtn.addEventListener("click", function() {
     updateCartModal();
-    cartModal.style.display = "flex"  //qnd clicar no botao, muda de hidden para flex e abre "meu carrinho"
-}) 
+    cartModal.style.display = "flex" //qnd clicar no botao, muda de hidden para flex e abre "meu carrinho"
+})
 
 // Fechar o modal quando clicar fora
 cartModal.addEventListener("click", function(event) {
-    if(event.target === cartModal){  //se clicar na parte do cartModal (fora do meu carrinho) ele fecha a aba "meu carrinho"
+    if(event.target === cartModal) {  //se clicar na parte do cartModal (fora do meu carrinho) ele fecha a aba "meu carrinho"
         cartModal.style.display = "none"
     }
 })
@@ -33,7 +33,7 @@ closeModalBtn.addEventListener("click", function() {
 menu.addEventListener("click", function(event) {
     let parenButton = event.target.closest(".add-to-cart-btn") // . pq ele quer achar a classe
 
-    if(parenButton) { //clicar no botão de add
+    if(parenButton) {
         const name = parenButton.getAttribute("data-name")
         const price = parseFloat(parenButton.getAttribute("data-price"))
 
@@ -43,64 +43,75 @@ menu.addEventListener("click", function(event) {
 })
 
 // Função para add no carrinho
-function addToCart(name, price){
-    const existingItem = cart.find(item => item.name === name) // Confirma se tem algum item add com o mesmo nome
+function addToCart(name, price) {
+    const existingItem = cart.find(item => item.name === name);
 
     if(existingItem) {
         // Se o item já existe aumenta apenas a quantidade
         existingItem.quantity += 1;
-        return
     } else {
-    
-    cart.push({
-        name,
-        price,
-        quantity: 1,
-    })
+        cart.push({
+            name,
+            price,
+            quantity: 1,
+        });
     }
 
-    updateCartModal()
+    Toastify({
+        text: "Item adicionado no carrinho!",
+        duration: 3000,
+        destination: "https://github.com/apvarun/toastify-js",
+        newWindow: true,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+          background: "",
+        },
+        onClick: function(){} // Callback after click
+    }).showToast();
 
+    updateCartModal();
 }
 
 // Atualiza o carrinho
 function updateCartModal() {
     cartItemsContainer.innerHTML = "";
     let total = 0;
+    let totalItems = 0; // Adiciona uma variável para contar o total de itens
   
     cart.forEach(item => {
       const cartItemElement = document.createElement("div");
-      cartItemElement.classList.add("flex", "justify-between", "mb-4", "flex-col")
+      cartItemElement.classList.add("flex", "justify-between", "mb-4", "flex-col");
   
       cartItemElement.innerHTML = `
-        <div class= "flex items-center justify-between">
+        <div class="flex items-center justify-between">
             <div>
-                <p class= "font-medium">${item.name}</p>
+                <p class="font-medium">${item.name}</p>
                 <p> Qtd: ${item.quantity}</p>
-                <p class= "font-medium mt-2">R$ ${item.price.toFixed(2)}</p>
+                <p class="font-medium mt-2">R$ ${item.price.toFixed(2)}</p>
             </div>
-
-            <button class= "remove-from-cart-btn" data-name= "${item.name}">
+            <button class="remove-from-cart-btn" data-name="${item.name}">
             Remover
             </button>
-
         </div>
       `
 
       total += item.price * item.quantity;
+      totalItems += item.quantity; // Atualiza o total de itens
   
-      cartItemsContainer.appendChild(cartItemElement)
+      cartItemsContainer.appendChild(cartItemElement);
     })
 
     cartTotal.textContent = total.toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL"
-    });
+    })
 
-    cartCounter.innerHTML = cart.length;
-
+    cartCounter.textContent = totalItems; // Atualiza o contador com o número total de itens
 }
-  
+
 // Função para remover o item do carrinho 
 cartItemsContainer.addEventListener("click", function(event) {
     if(event.target.classList.contains("remove-from-cart-btn")) {
@@ -119,11 +130,9 @@ function removeItemCart(name) {
 
         if(item.quantity > 1) {
             item.quantity -= 1;
-            updateCartModal();
-            return;
+        } else {
+            cart.splice(index, 1);
         }
-
-        cart.splice(index, 1);
         updateCartModal();
     }
 }
@@ -136,37 +145,36 @@ addressInput.addEventListener("input", function(event) {
         addressInput.classList.remove("border-red-500")
         addressWarn.classList.add("hidden")
     }
-
 })
 
 // Finalizar o pedido
 checkoutBtn.addEventListener("click", function() {
 
     const isOpen = checkRestauranteOpen();
-    if(!isOpen) {
 
+    if(!isOpen) {
         Toastify({
             text: "Restaurante Fechado!",
             duration: 3000,
             destination: "https://github.com/apvarun/toastify-js",
             newWindow: true,
             close: true,
-            gravity: "top", // `top` or `bottom`
-            position: "right", // `left`, `center` or `right`
-            stopOnFocus: true, // Prevents dismissing of toast on hover
+            gravity: "top",
+            position: "right",
+            stopOnFocus: true,
             style: {
               background: "#ef4444",
             },
             onClick: function(){} // Callback after click
-          }).showToast();
+        }).showToast();
 
         return;
     }
 
     if(cart.length === 0) return;
     if(addressInput.value === ""){
-        addressWarn.classList.remove("hidden")
-        addressInput.classList.add("border-red-500")
+        addressWarn.classList.remove("hidden");
+        addressInput.classList.add("border-red-500");
         return;
     }
 
@@ -177,25 +185,24 @@ checkoutBtn.addEventListener("click", function() {
         )
     }).join("")
     
-    const message = encodeURIComponent(cartItems)
-    const phone = "13996238737"
+    const message = encodeURIComponent(cartItems);
+    const phone = "13996238737";
 
-    window.open(`https://wa.me/${phone}?text=${message} Endereço: ${addressInput.value}`, "_blank")
+    window.open(`https://wa.me/${phone}?text=${message} Endereço: ${addressInput.value}`, "_blank");
 
     cart = [];
     updateCartModal();
-
 })
 
-// Verfificar a hora e manipular o card horário
+// Verificar a hora e manipular o card horário
 function checkRestauranteOpen() {
     const data = new Date();
     const hora = data.getHours();
-    return hora >= 18 && hora < 23; //true, resturante aberto
+    return hora >= 18 && hora < 23;
 }
 
 const spanItem = document.getElementById("date-span")
-const isOpen = checkRestauranteOpen();
+const isOpen = checkRestauranteOpen()
 
 if(isOpen) {
     spanItem.classList.remove("bg-red-500")
